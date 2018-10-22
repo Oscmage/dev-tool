@@ -5,8 +5,15 @@ import sys
 
 def main():
     cwd = os.getcwd()
-    argument = sys.argv[1]
+    handleArguments()
 
+    # Get previous result from sonar-scanner
+    # Run sonar-scanner with new code
+    # Display simple comparison
+
+
+def handleArguments():
+    argument = sys.argv[1]
     if argument:
         if argument == "-h":
             help()
