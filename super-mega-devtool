@@ -1,0 +1,9 @@
+#!/bin/bash
+
+dir="$(dirname $0)"
+
+if command -v python3 &>/dev/null; then
+    python3 "$dir/test.py"
+else
+    echo Python 3 is not installed, please install.
+fi
