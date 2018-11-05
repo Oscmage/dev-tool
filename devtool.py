@@ -27,6 +27,7 @@ def main():
     json_dict = r.json()
     print(displayHistory(getHistory(json_dict, 'bugs'), 'bugs'))
     print(displayHistory(getHistory(json_dict, 'code_smells'), 'code smells'))
+    print(displayHistory(getHistory(json_dict, 'vulnerabilities'), 'vulnerabilities'))
 
 
 def displayHistory(history_list, measure):
