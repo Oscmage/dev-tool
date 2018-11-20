@@ -13,11 +13,53 @@ SERVER_URL = "serverUrl="
 QUERY = "&metrics=sqale_index%2Cduplicated_lines_density%2Cncloc%2Ccoverage%2Cbugs%2Ccode_smells%2Cvulnerabilities&ps=1000"
 MEASURES = "/api/measures/search_history?component="
 
+NORMAL_MODE = "NORMAL MODE"
+STASH_MODE = "STASH MODE"
+HELP = "HELP"
+
 
 def main():
     cwd = os.getcwd()  # Current working directory
-    handleArguments()
+    mode = parseArguments()
+    if mode:
+        if mode == NORMAL_MODE:
+            normal_mode(cwd)
+        if mode == STASH_MODE:
+            stash_mode(cwd)
+        if mode == HELP:
+            help()
 
+
+def normal_mode(cwd):
+    # Display difference from last run of sonar-scanner
+    sonar_scanner_print_out(cwd)
+
+
+def stash_mode(cwd):
+    # Stash everything from new changes
+    # Run sonar scanner to get previous result
+    # Pop the new code
+    cool_print("Stashing changes")
+    subprocess.run(["git", "stash", "--all", "--include-untracked"])
+    cool_print("Running sonar-scanner without new changes")
+    subprocess.run(["sonar-scanner"])
+    cool_print("Poping changes")
+    subprocess.run(["git", "stash", "pop"])
+    # Display difference for changes
+    cool_print(
+        "Run sonar scanner for second time to display difference with your changes")
+    sonar_scanner_print_out(cwd)
+
+
+def cool_print(to_print):
+    print(bcolors.OKGREEN +
+          "###########################################################" + bcolors.ENDC)
+    print(bcolors.OKGREEN + to_print + bcolors.ENDC)
+    print(bcolors.OKGREEN +
+          "###########################################################" + bcolors.ENDC)
+
+
+def sonar_scanner_print_out(cwd):
     # Blocking, wait until done
     subprocess.run(["sonar-scanner"])
     # Retrieve project key and base url which is used for quering the api
@@ -25,12 +67,12 @@ def main():
     url = baseUrl + MEASURES + projectKey + QUERY
     r = requests.get(url)
     json_dict = r.json()
-    print(displayHistory(getHistory(json_dict, 'bugs'), 'bugs'))
-    print(displayHistory(getHistory(json_dict, 'code_smells'), 'code smells'))
-    print(displayHistory(getHistory(json_dict, 'vulnerabilities'), 'vulnerabilities'))
+    print(display_history(get_history(json_dict, 'bugs'), 'bugs'))
+    print(display_history(get_history(json_dict, 'code_smells'), 'code smells'))
+    print(display_history(get_history(json_dict, 'vulnerabilities'), 'vulnerabilities'))
 
 
-def displayHistory(history_list, measure):
+def display_history(history_list, measure):
     '''
     Expects a list of minimum len 2 and which is sorted with the most recent entry first.
     '''
@@ -47,7 +89,7 @@ def displayHistory(history_list, measure):
     return bcolors.OKGREEN + changeText + str(change) + bcolors.ENDC
 
 
-def getHistory(json_dict, measure):
+def get_history(json_dict, measure):
     '''
     Retrieves the history for a specific measure eg: 'bugs' sorted by most recent date first.
     '''
@@ -80,13 +122,18 @@ def writeResult(data):
         json.dump(data, outfile)
 
 
-def handleArguments():
+def parseArguments():
     argument = sys.argv[1]
     if argument:
         if argument == "-h":
-            help()
+            return HELP
+        elif argument == "-gs":
+            return STASH_MODE
         else:
             print("Unknown argument: %s" % argument)
+            return ""
+    else:
+        return NORMAL_MODE
 
 
 def help():
