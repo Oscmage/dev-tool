@@ -8,4 +8,6 @@
 
 # Usage
 
-open a terminal and run `super-mega-devtool`
+1. Make sure you have sonar-cube running
+2. Open a terminal and run `super-mega-devtool`
+3. (Optional) If you want to compare your changes to the last commit done run `super-mega-devtool -gs`, this assumes you're in a git project.

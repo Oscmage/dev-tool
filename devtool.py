@@ -137,7 +137,7 @@ def parseArguments():
 
 
 def help():
-    print(bcolors.WARNING + "This is how you use the dev tool herpa derp."
+    print(bcolors.WARNING + "Running without any argument will compare to previous run. Another alternative is to run with the argument -gs which will stash your current changes and compare to the last commit. This assumes it's a git repository"
           + bcolors.ENDC)
 
 
